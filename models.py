@@ -51,20 +51,20 @@ def ConvMF(res_dir, train_user, train_item, valid_user, test_user,
 
     endure_count = 5
     count = 0
-    for iteration in xrange(max_iter):
+    for iteration in range(max_iter):
         loss = 0
         tic = time.time()
-        print "%d iteration\t(patience: %d)" % (iteration, count)
+        print("%d iteration\t(patience: %d)" % (iteration, count))
 
         VV = b * (V.T.dot(V)) + lambda_u * np.eye(dimension)
         sub_loss = np.zeros(num_user)
 
-        for i in xrange(num_user):
+        for i in range(num_user):
             idx_item = train_user[0][i]
             V_i = V[idx_item]
             R_i = Train_R_I[i]
             A = VV + (a - b) * (V_i.T.dot(V_i))
-            B = (a * V_i * (np.tile(R_i, (dimension, 1)).T)).sum(0)
+            B = (a * V_i * np.tile(R_i, (dimension, 1)).T).sum(0)
 
             U[i] = np.linalg.solve(A, B)
 
@@ -74,15 +74,14 @@ def ConvMF(res_dir, train_user, train_item, valid_user, test_user,
 
         sub_loss = np.zeros(num_item)
         UU = b * (U.T.dot(U))
-        for j in xrange(num_item):
+        for j in range(num_item):
             idx_user = train_item[0][j]
             U_j = U[idx_user]
             R_j = Train_R_J[j]
 
             tmp_A = UU + (a - b) * (U_j.T.dot(U_j))
             A = tmp_A + lambda_v * item_weight[j] * np.eye(dimension)
-            B = (a * U_j * (np.tile(R_j, (dimension, 1)).T)
-                 ).sum(0) + lambda_v * item_weight[j] * theta[j]
+            B = (a * U_j * np.tile(R_j, (dimension, 1)).T).sum(0) + lambda_v * item_weight[j] * theta[j]
             V[j] = np.linalg.solve(A, B)
 
             sub_loss[j] = -0.5 * np.square(R_j * a).sum()
@@ -106,7 +105,7 @@ def ConvMF(res_dir, train_user, train_item, valid_user, test_user,
 
         converge = abs((loss - PREV_LOSS) / PREV_LOSS)
 
-        if (val_eval < pre_val_eval):
+        if val_eval < pre_val_eval:
             cnn_module.save_model(res_dir + '/CNN_weights.hdf5')
             np.savetxt(res_dir + '/U.dat', U)
             np.savetxt(res_dir + '/V.dat', V)
@@ -116,13 +115,12 @@ def ConvMF(res_dir, train_user, train_item, valid_user, test_user,
 
         pre_val_eval = val_eval
 
-        print "Loss: %.5f Elpased: %.4fs Converge: %.6f Tr: %.5f Val: %.5f Te: %.5f" % (
-            loss, elapsed, converge, tr_eval, val_eval, te_eval)
+        print("Loss: %.5f Elpased: %.4fs Converge: %.6f Tr: %.5f Val: %.5f Te: %.5f" % (
+            loss, elapsed, converge, tr_eval, val_eval, te_eval))
         f1.write("Loss: %.5f Elpased: %.4fs Converge: %.6f Tr: %.5f Val: %.5f Te: %.5f\n" % (
             loss, elapsed, converge, tr_eval, val_eval, te_eval))
 
-        if (count == endure_count):
-            break
+        if count == endure_count: break
 
         PREV_LOSS = loss
 
