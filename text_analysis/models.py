@@ -46,7 +46,7 @@ class CNN_module():
             y = y[0]
 
         #''' or using LSTM & Max Pooling Layer'''
-        #y = GlobalMaxPool1D()(LSTM(nb_filters)(x_emb))
+        #y = GlobalMaxPool1D()(LSTM(nb_filters,return_sequences=True)(x_emb))
 
         '''Dropout Layer'''
         y = Dense(vanila_dimension, activation='tanh', name='fully_connect')(y)
